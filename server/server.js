@@ -82,7 +82,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/shop',
+        mongoUrl: process.env.MONGODB_URI || '',
         ttl: 24 * 60 * 60 // 1 day
     }),
     cookie: {
