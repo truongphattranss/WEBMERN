@@ -16,6 +16,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const { user } = useSelector(state => state.user);
 
+  // Sử dụng useMemo để tạo axiosInstance ổn định, không bị tạo mới mỗi lần render
   const axiosInstance = useMemo(() => axios.create({
     baseURL: 'https://curvotech.onrender.com',
     withCredentials: true,
@@ -24,21 +25,23 @@ const Cart = () => {
     }
   }), []);
 
+  // Sử dụng useCallback để định nghĩa fetchCart với dependency ổn định
   const fetchCart = useCallback(async () => {
     setLoading(true);
     setError(null);
-
+    
     try {
       console.log('Fetching cart data...');
       const res = await axiosInstance.get('/api/cart/cart');
       console.log('Cart response:', res.data);
-
+      
       if (!res.data.cart || res.data.cart.length === 0) {
         console.log('Cart is empty, setting empty cart state');
         setCart([]);
         return;
       }
-
+      
+      // Lấy thông tin chi tiết cho từng sản phẩm trong giỏ hàng
       const cartWithDetails = await Promise.all(
         res.data.cart.map(async (item) => {
           try {
@@ -63,7 +66,7 @@ const Cart = () => {
           }
         })
       );
-
+      
       setCart(cartWithDetails);
     } catch (err) {
       console.error('Lỗi khi tải giỏ hàng:', err);
@@ -75,17 +78,21 @@ const Cart = () => {
 
   useEffect(() => {
     fetchCart();
-  }, [fetchCart]);
+  }, [fetchCart]); // Chỉ gọi fetchCart khi component mount hoặc khi axiosInstance thay đổi (hiện đã ổn định)
 
+  // Debug log cho các state
   useEffect(() => {
-    console.log('Current component state:', { loading, cart, error });
+    console.log('Current component state:');
+    console.log('Loading:', loading);
+    console.log('Cart:', cart);
+    console.log('Error:', error);
   }, [loading, cart, error]);
 
   const handleAction = async (action, id, name) => {
     setProcessing(true);
-
+    
     let endpoint, message;
-
+    
     if (action === 'increment') {
       endpoint = `/api/cart/cart/increment/${id}`;
       message = `Đã tăng số lượng ${name}`;
@@ -96,13 +103,45 @@ const Cart = () => {
       endpoint = `/api/cart/cart/remove/${id}`;
       message = `Đã xóa ${name} khỏi giỏ hàng`;
     }
-
+    
     try {
       await axiosInstance.post(endpoint);
       toast.success(message);
-
-      // Fetch updated cart after action
-      fetchCart(); // Refresh the cart after action (add/remove/update)
+      
+      // Lấy dữ liệu giỏ hàng cập nhật
+      const cartRes = await axiosInstance.get('/api/cart/cart');
+      
+      if (!cartRes.data.cart || cartRes.data.cart.length === 0) {
+        setCart([]);
+        setProcessing(false);
+        return;
+      }
+      
+      const cartWithDetails = await Promise.all(
+        cartRes.data.cart.map(async (item) => {
+          try {
+            const productRes = await axiosInstance.get(`/api/products/${item.productId}`);
+            const product = productRes.data.product || {};
+            return {
+              _id: item.productId,
+              quantity: item.quantity,
+              name: product.name || 'Sản phẩm không xác định',
+              price: product.price || 0,
+              image: product.image || null,
+            };
+          } catch (err) {
+            console.error(`Error fetching details for product ${item.productId}:`, err);
+            return {
+              _id: item.productId,
+              quantity: item.quantity,
+              name: 'Sản phẩm không tồn tại',
+              price: 0,
+              image: null
+            };
+          }
+        })
+      );
+      setCart(cartWithDetails);
     } catch (error) {
       console.error(`Lỗi khi ${action === 'remove' ? 'xóa' : 'cập nhật'} sản phẩm:`, error);
       toast.error(`Không thể ${action === 'remove' ? 'xóa' : 'cập nhật'} sản phẩm. Vui lòng thử lại.`);
@@ -124,7 +163,7 @@ const Cart = () => {
       navigate('/login', { state: { from: { pathname: '/checkout' } } });
       return;
     }
-
+    
     if (cart.length === 0) {
       showNotification('Giỏ hàng trống, không thể thanh toán', 'error');
     } else {
@@ -135,6 +174,7 @@ const Cart = () => {
   const total = cart.reduce((sum, p) => sum + (p.price ? p.price * p.quantity : 0), 0);
 
   if (loading) {
+    console.log('Rendering loading state');
     return (
       <div className="container mx-auto p-4 text-center">
         <h1 className="text-2xl font-bold mb-4">🛒 Giỏ hàng của bạn</h1>
@@ -147,6 +187,7 @@ const Cart = () => {
   }
 
   if (error) {
+    console.log('Rendering error state');
     return (
       <div className="container mx-auto p-4 text-center">
         <h1 className="text-2xl font-bold mb-4">🛒 Giỏ hàng của bạn</h1>
@@ -163,6 +204,8 @@ const Cart = () => {
       </div>
     );
   }
+
+  console.log('Rendering cart UI, cart length:', cart.length);
 
   return (
     <div className="container mx-auto px-4 py-6">

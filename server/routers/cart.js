@@ -13,20 +13,29 @@ router.use((req, res, next) => {
 // ========================== THÊM SẢN PHẨM VÀO GIỎ HÀNG ==========================
 router.post('/cart/add/:id', async (req, res) => {
     try {
-      const product = await Product.findById(req.params.id);
-      if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
-  
-      const existing = req.session.cart.find(item => item.productId == product._id);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        req.session.cart.push({ productId: product._id, quantity: 1, productName: product.name, productPrice: product.price, productImage: product.image });
-      }
-  
-      res.status(200).json({ message: 'Đã thêm vào giỏ hàng', cart: req.session.cart });
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm' });
+        }
+
+        const existing = req.session.cart.find(item => item.productId.toString() === product._id.toString());
+
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            req.session.cart.push({
+                productId: product._id.toString(),
+                quantity: 1,
+                productName: product.name,
+                productPrice: product.price,
+                productImage: product.image
+            });
+        }
+
+        res.status(200).json({ success: true, message: 'Đã thêm vào giỏ hàng', cart: req.session.cart });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Lỗi server' });
+        console.error('Lỗi thêm vào giỏ hàng:', err);
+        res.status(500).json({ success: false, message: 'Lỗi server' });
     }
 });
 
@@ -34,13 +43,13 @@ router.post('/cart/add/:id', async (req, res) => {
 router.post('/cart/increment/:id', (req, res) => {
     try {
         const { id } = req.params;
-        const existing = req.session.cart.find(item => item.productId == id);
-        if (existing) {
-            existing.quantity += 1;
+        const item = req.session.cart.find(item => item.productId === id);
+        if (item) {
+            item.quantity += 1;
         }
         res.json({ success: true, cart: req.session.cart });
     } catch (err) {
-        console.error(err);
+        console.error('Lỗi tăng số lượng:', err);
         res.status(500).json({ success: false, message: "Lỗi tăng số lượng" });
     }
 });
@@ -49,7 +58,7 @@ router.post('/cart/increment/:id', (req, res) => {
 router.post('/cart/decrement/:id', (req, res) => {
     try {
         const { id } = req.params;
-        const index = req.session.cart.findIndex(item => item.productId == id);
+        const index = req.session.cart.findIndex(item => item.productId === id);
         if (index !== -1) {
             if (req.session.cart[index].quantity > 1) {
                 req.session.cart[index].quantity -= 1;
@@ -59,7 +68,7 @@ router.post('/cart/decrement/:id', (req, res) => {
         }
         res.json({ success: true, cart: req.session.cart });
     } catch (err) {
-        console.error(err);
+        console.error('Lỗi giảm số lượng:', err);
         res.status(500).json({ success: false, message: "Lỗi giảm số lượng" });
     }
 });
@@ -68,12 +77,10 @@ router.post('/cart/decrement/:id', (req, res) => {
 router.post('/cart/remove/:id', (req, res) => {
     try {
         const { id } = req.params;
-        req.session.cart = req.session.cart.filter(item => item.productId.toString() !== id.toString());
-        req.session.save(() => {
-            res.status(200).json({ success: true, cart: req.session.cart });
-        });
+        req.session.cart = req.session.cart.filter(item => item.productId !== id);
+        res.status(200).json({ success: true, message: 'Đã xóa sản phẩm khỏi giỏ hàng', cart: req.session.cart });
     } catch (err) {
-        console.error(err);
+        console.error('Lỗi xóa sản phẩm:', err);
         res.status(500).json({ success: false, message: "Lỗi xóa sản phẩm khỏi giỏ hàng" });
     }
 });
@@ -82,9 +89,7 @@ router.post('/cart/remove/:id', (req, res) => {
 router.post('/cart/clear', (req, res) => {
     try {
         req.session.cart = [];
-        req.session.save(() => {
-            res.status(200).json({ success: true, message: "Đã xóa toàn bộ giỏ hàng", cart: [] });
-        });
+        res.status(200).json({ success: true, message: "Đã xóa toàn bộ giỏ hàng", cart: [] });
     } catch (err) {
         console.error('Lỗi xóa toàn bộ giỏ hàng:', err);
         res.status(500).json({ success: false, message: "Lỗi xóa toàn bộ giỏ hàng" });
@@ -93,7 +98,12 @@ router.post('/cart/clear', (req, res) => {
 
 // ========================== XEM GIỎ HÀNG ==========================
 router.get('/cart', (req, res) => {
-    res.status(200).json({ cart: req.session.cart });
+    try {
+        res.status(200).json({ success: true, cart: req.session.cart || [] });
+    } catch (err) {
+        console.error('Lỗi lấy giỏ hàng:', err);
+        res.status(500).json({ success: false, message: "Lỗi lấy giỏ hàng" });
+    }
 });
 
 module.exports = router;
