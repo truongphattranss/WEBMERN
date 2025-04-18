@@ -18,7 +18,7 @@ router.post('/cart/add/:id', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm' });
         }
 
-        const existing = req.session.cart.find(item => item.productId.toString() === product._id.toString());
+        const existing = req.session.cart.find(item => item.productId === product._id.toString());
 
         if (existing) {
             existing.quantity += 1;
@@ -32,7 +32,9 @@ router.post('/cart/add/:id', async (req, res) => {
             });
         }
 
-        res.status(200).json({ success: true, message: 'Đã thêm vào giỏ hàng', cart: req.session.cart });
+        req.session.save(() => {
+            res.status(200).json({ success: true, message: 'Đã thêm vào giỏ hàng', cart: req.session.cart });
+        });
     } catch (err) {
         console.error('Lỗi thêm vào giỏ hàng:', err);
         res.status(500).json({ success: false, message: 'Lỗi server' });
@@ -47,7 +49,9 @@ router.post('/cart/increment/:id', (req, res) => {
         if (item) {
             item.quantity += 1;
         }
-        res.json({ success: true, cart: req.session.cart });
+        req.session.save(() => {
+            res.json({ success: true, cart: req.session.cart });
+        });
     } catch (err) {
         console.error('Lỗi tăng số lượng:', err);
         res.status(500).json({ success: false, message: "Lỗi tăng số lượng" });
@@ -66,7 +70,9 @@ router.post('/cart/decrement/:id', (req, res) => {
                 req.session.cart.splice(index, 1);
             }
         }
-        res.json({ success: true, cart: req.session.cart });
+        req.session.save(() => {
+            res.json({ success: true, cart: req.session.cart });
+        });
     } catch (err) {
         console.error('Lỗi giảm số lượng:', err);
         res.status(500).json({ success: false, message: "Lỗi giảm số lượng" });
@@ -78,7 +84,9 @@ router.post('/cart/remove/:id', (req, res) => {
     try {
         const { id } = req.params;
         req.session.cart = req.session.cart.filter(item => item.productId !== id);
-        res.status(200).json({ success: true, message: 'Đã xóa sản phẩm khỏi giỏ hàng', cart: req.session.cart });
+        req.session.save(() => {
+            res.status(200).json({ success: true, message: 'Đã xóa sản phẩm khỏi giỏ hàng', cart: req.session.cart });
+        });
     } catch (err) {
         console.error('Lỗi xóa sản phẩm:', err);
         res.status(500).json({ success: false, message: "Lỗi xóa sản phẩm khỏi giỏ hàng" });
@@ -89,7 +97,9 @@ router.post('/cart/remove/:id', (req, res) => {
 router.post('/cart/clear', (req, res) => {
     try {
         req.session.cart = [];
-        res.status(200).json({ success: true, message: "Đã xóa toàn bộ giỏ hàng", cart: [] });
+        req.session.save(() => {
+            res.status(200).json({ success: true, message: "Đã xóa toàn bộ giỏ hàng", cart: [] });
+        });
     } catch (err) {
         console.error('Lỗi xóa toàn bộ giỏ hàng:', err);
         res.status(500).json({ success: false, message: "Lỗi xóa toàn bộ giỏ hàng" });
