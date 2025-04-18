@@ -1,0 +1,54 @@
+<%- include('../admin/layout', { title: 'Chi tiết Đơn hàng' }) %>
+
+<div class="container mt-4">
+    <h2 class="text-primary fw-bold">Chi tiết Đơn hàng</h2>
+
+    <div class="card shadow-lg mb-4">
+        <div class="card-body">
+            <p><strong>ID Đơn hàng:</strong> <%= order?._id || 'Không xác định' %></p>
+            <p><strong>Tên người dùng:</strong> <%= order?.userId?.username || 'Không xác định' %></p>
+            <p><strong>Email:</strong> <%= order?.email || 'Không có' %></p>
+            <p><strong>Số điện thoại:</strong> <%= order?.phone || 'Không có' %></p>
+            <p><strong>Địa chỉ:</strong> <%= order?.address || 'Không có' %></p>
+            <p><strong>Phương thức thanh toán:</strong> <%= order?.paymentMethod || 'Không xác định' %></p>
+            <p><strong>Trạng thái:</strong> 
+                <span class="badge bg-<%= order?.status === 'Đã giao' ? 'success' : order?.status === 'Đang xử lý' ? 'warning' : 'secondary' %>">
+                    <%= order?.status || 'Không xác định' %>
+                </span>
+            </p>
+            <p><strong>Tổng tiền:</strong> 
+                <span class="text-success fw-bold">
+                    <%= order?.totalAmount?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '0₫' %>
+                </span>
+            </p>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Sản phẩm trong đơn hàng</h3>
+
+    <% if (order?.products && order.products.length > 0) { %>
+        <ul class="list-group">
+            <% order.products.forEach(item => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong><%= item?.productId?.name || 'Sản phẩm không xác định' %></strong><br>
+                        Số lượng: <%= item?.quantity || 0 %>
+                    </div>
+                    <% if (item?.productId?.image) { %>
+                        <img src="<%= item.productId.image %>" alt="<%= item.productId.name || 'Hình ảnh' %>" style="width: 60px; height: 60px; object-fit: cover;">
+                    <% } else { %>
+                        <span>Không có ảnh</span>
+                    <% } %>
+                </li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>Không có sản phẩm nào trong đơn hàng.</p>
+    <% } %>
+
+    <div class="mt-4">
+        <a href="/admin/orders" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>

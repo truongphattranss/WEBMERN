@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+
+</head>
+<body>
+
+  <%- include('../admin/layout', { title: 'Dashboard' }) %>
+
+  <div class="dashboard-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+          <a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+          <a href="/admin/users"><i class="fas fa-users"></i> Users</a>
+          <a href="/admin/products"><i class="fas fa-box"></i> Products</a>
+          <a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Orders</a>
+          <a href="/index"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a>
+      </div>
+
+      <!-- Main Content -->
+      <div class="content container-fluid">
+          <h2 class="text-center">Admin Dashboard</h2>
+
+          <div class="row">
+              <div class="col-md-4">
+                  <div class="card bg-primary text-white mb-3">
+                      <div class="card-header"><i class="fas fa-users"></i> Tổng người dùng</div>
+                      <div class="card-body">
+                          <h5 class="card-title"><%= stats?.totalUsers || 0 %></h5>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="card bg-success text-white mb-3">
+                      <div class="card-header"><i class="fas fa-box"></i> Tổng sản phẩm</div>
+                      <div class="card-body">
+                          <h5 class="card-title"><%= stats?.totalProducts || 0 %></h5>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4">
+                  <div class="card bg-warning text-white mb-3">
+                      <div class="card-header"><i class="fas fa-shopping-cart"></i> Tổng đơn đặt hàng</div>
+                      <div class="card-body">
+                          <h5 class="card-title"><%= stats?.totalOrders || 0 %></h5>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Recent Orders Table -->
+          <h3 class="mt-4">Recent Orders</h3>
+          <table class="table table-striped">
+              <thead>
+                  <tr>
+                      <th>ID</th>
+                      <th>Người dùng</th>
+                      <th>Ngày</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <% if (stats?.recentOrders && stats.recentOrders.length > 0) { %>
+                      <% stats.recentOrders.forEach(order => { %>
+                          <tr>
+                              <td><%= order._id %></td>
+                              <td><%= order?.userId?.username || 'Không rõ' %></td>
+                              <td><%= new Date(order.createdAt).toLocaleDateString('en-GB') %></td>
+                          </tr>
+                      <% }) %>
+                  <% } else { %>
+                      <tr>
+                          <td colspan="3" class="text-center">Không có đơn hàng nào gần đây.</td>
+                      </tr>
+                  <% } %>
+              </tbody>
+          </table>
+      </div>
+  </div>
+
+</body>
+</html>

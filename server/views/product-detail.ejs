@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100">
+    <%- include("header") %>
+    <header class="text-center p-4 bg-white shadow-md">
+        <h1 class="text-2xl font-bold">Chi tiết sản phẩm</h1>
+    </header>
+    <div class="container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-lg shadow-md">
+            <!-- Hình ảnh sản phẩm -->
+            <div class="flex justify-center">
+                <img src="<%= product.image %>" alt="<%= product.name %>" class="w-full h-80 object-cover rounded-lg">
+            </div>
+
+            <!-- Thông tin sản phẩm -->
+            <div class="flex flex-col justify-center">
+                <h2 class="text-2xl font-bold mb-2"><%= product.name %></h2>
+                <p class="text-lg text-gray-700 font-semibold">
+                    Giá: <span class="text-red-500"><%= product.price.toLocaleString('vi-VN') %> VNĐ</span>
+                </p>
+                <p class="text-gray-600"><strong>Danh mục:</strong> <%= product.category %></p>
+                <p class="text-gray-600"><strong>Đánh giá:</strong> <%= product.rating %>/5⭐</p>
+                <p class="text-gray-600"><strong>Mô tả:</strong> <%= product.description %></p>
+
+                <!-- Nút thêm vào giỏ hàng -->
+                <form action="/cart/add/<%= product.id %>" method="POST" class="mt-4">
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition flex items-center justify-center">
+                        <i class="fas fa-shopping-cart mr-2"></i> Thêm vào giỏ hàng
+                    </button>
+                </form>
+
+                <!-- Nút quay lại danh sách -->
+                <a href="/product" class="mt-4 text-center block text-blue-500 hover:underline">← Quay lại</a>
+            </div>
+        </div>
+    </div>
+    <a href="/cart" class="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center">
+        🛒 Giỏ hàng
+    </a>
+    <%- include("footer") %>
+</body>
+</html>

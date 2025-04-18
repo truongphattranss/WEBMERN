@@ -1,0 +1,35 @@
+<% var title = "Chỉnh sửa Người dùng"; %>
+<%- include('layout', { title: title }) %>
+
+<div class="container mt-4">
+    <h2 class="mb-4">Chỉnh sửa Người dùng</h2>
+    
+    <form action="/admin/users/<%= user._id %>/update" method="POST">
+        <!-- Hidden input chứa ID (phòng trường hợp cần thiết) -->
+        <input type="hidden" name="userId" value="<%= user._id %>">
+
+        <!-- Username -->
+        <div class="mb-3">
+            <label for="username" class="form-label">Tên người dùng:</label>
+            <input type="text" id="username" class="form-control" name="username" value="<%= user.username %>" required>
+        </div>
+
+        <!-- Role -->
+        <div class="mb-3">
+            <label for="role" class="form-label">Vai trò:</label>
+            <select id="role" class="form-select" name="role" required>
+                <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>Người dùng</option>
+                <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Quản trị viên</option>
+            </select>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+            <label for="newPassword" class="form-label">Mật khẩu mới (nếu muốn đổi):</label>
+            <input type="password" id="newPassword" class="form-control" name="newPassword" minlength="6" placeholder="Để trống nếu không muốn đổi">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+        <a href="/admin/users" class="btn btn-secondary ms-2">Hủy</a>
+    </form>
+</div>

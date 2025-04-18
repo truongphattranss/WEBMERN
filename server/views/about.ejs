@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới thiệu - CurvoTech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100">
+    <%- include("header") %>
+
+    <div class="container mx-auto p-6">
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-3xl font-bold text-center text-blue-500 mb-4">Về CurvoTech</h1>
+            <p class="text-gray-700 text-lg text-center">Nơi cung cấp các dịch vụ công nghệ hàng đầu.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                    <img src="/images/logoabout.jpg" alt="CurvoTech" class="h-25 w-25 rounded-lg shadow-md">
+                </div>
+                <div>
+                    <h2 class="text-2xl font-semibold text-blue-500">Sứ mệnh của chúng tôi</h2>
+                    <p class="text-gray-600 mt-2">
+                        CurvoTech cam kết mang đến cho khách hàng các dịch vụ công nghệ tiên tiến, 
+                        giúp tối ưu hóa trải nghiệm người dùng và nâng cao hiệu suất công việc.
+                    </p>
+
+                    <h2 class="text-2xl font-semibold text-blue-500 mt-4">Dịch vụ của chúng tôi</h2>
+                    <ul class="list-disc list-inside text-gray-600 mt-2">
+                        <li>Thiết kế và phát triển website</li>
+                        <li>Cung cấp giải pháp AI và Machine Learning</li>
+                        <li>Dịch vụ lưu trữ và bảo mật dữ liệu</li>
+                        <li>Tư vấn chiến lược công nghệ</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <a href="/index" class="text-blue-500 hover:underline">← Quay lại trang chủ</a>
+            </div>
+        </div>
+    </div>
+    <a href="/cart" class="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg flex items-center">
+        🛒 Giỏ hàng
+    </a>
+    <%- include("footer") %>
+</body>
+</html>

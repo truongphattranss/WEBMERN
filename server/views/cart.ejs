@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100">
+    <%- include("header") %>
+    <header class="text-center p-4 bg-white shadow-md">
+        <h1 class="text-2xl font-bold">Giỏ Hàng Của Bạn</h1>
+        <a href="/" class="mt-2 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md">Quay lại cửa hàng</a>
+    </header>
+
+    <div class="container mx-auto p-4">
+        <% if (cart.length > 0) { %>
+            <ul class="space-y-4">
+                <% cart.forEach((product, index) => { %>  
+                    <li class="bg-white rounded-lg shadow-md p-4 flex items-center">
+                        <img src="<%= product.image %>" alt="<%= product.name %>" class="w-24 h-24 object-cover rounded-lg">
+                        <div class="ml-4 flex-grow">
+                            <h2 class="text-lg font-semibold"><%= product.name %></h2>
+                            <p class="text-gray-700">Giá: <%= product.price.toLocaleString() %> VND</p>
+                            <p class="text-gray-700">Số lượng: <%= product.quantity || 1 %></p>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <!-- Nút tăng -->
+                            <form action="/cart/increment/<%= product._id %>" method="POST">
+                                <button type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold px-2 py-1 rounded inline-flex items-center">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </form>
+                            <!-- Nút giảm -->
+                            <form action="/cart/decrement/<%= product._id %>" method="POST">
+                                <button type="submit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold px-2 py-1 rounded inline-flex items-center">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Form xóa sản phẩm -->
+                        <form action="/cart/remove/<%= index %>" method="POST" class="ml-4">
+                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg">Xóa</button>
+                        </form>
+                    </li>
+                <% }); %>
+            </ul>
+
+            <!-- Hiển thị tổng tiền -->
+            <div class="text-center mt-6 bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold">
+                    Tổng tiền: 
+                    <%= cart.reduce((total, product) => total + (product.price * (product.quantity || 1)), 0).toLocaleString() %> VND
+                </h3>
+                <a href="/checkout" class="mt-4 inline-block bg-green-500 text-white px-6 py-2 rounded-lg shadow-md">
+                    Thanh Toán
+                </a>
+            </div>
+        <% } else { %>
+            <p class="text-center text-gray-600 text-lg mt-10">🛒 Giỏ hàng của bạn đang trống!</p>
+        <% } %>
+    </div>
+    <%- include("footer") %>
+</body>
+</html>

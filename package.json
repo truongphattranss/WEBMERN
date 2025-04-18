@@ -1,0 +1,14 @@
+{
+    "name": "mern-ecommerce",
+    "version": "1.0.0",
+    "description": "Dự án MERN Stack E-commerce",
+    "scripts": {
+      "client": "cd client && npm start",
+      "server": "cd server && npm run dev",
+      "dev": "concurrently \"npm run server\" \"npm run client\"",
+      "setup": "npm install && cd client && npm install && cd ../server && npm install"
+    },
+    "devDependencies": {
+      "concurrently": "^8.0.1"
+    }
+  }

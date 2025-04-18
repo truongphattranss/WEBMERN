@@ -1,0 +1,54 @@
+<header class="bg-gray shadow-md">
+    <div class="container mx-auto p-4 flex items-center justify-between">
+         <!-- Logo -->
+         <div class="flex items-center">
+             <img src="https://i.pinimg.com/736x/43/5d/09/435d096b52b0be4816d214c05ab0c22e.jpg" alt="Logo" class="h-20 w-20 rounded-full">
+             <span class="ml-2 text-xl font-bold">
+                 <a href="/index" class="text-gray-800 hover:text-blue-500">CurvoTech</a>
+             </span>
+         </div>
+ 
+         <!-- Navigation Links -->
+         <nav class="hidden md:flex space-x-4">
+            <strong>
+             <a href="/index" class="text-gray-700 hover:text-blue-500 mx-4">Trang chủ</a>
+             <a href="/product" class="text-gray-700 hover:text-blue-500 mx-4">Sản phẩm</a>
+             <a href="/about" class="text-gray-700 hover:text-blue-500 mx-4">Giới thiệu</a>
+            </strong>
+         </nav>
+ 
+         <!-- Search Bar -->
+         <div class="flex items-center space-x-2">
+             <form action="/search" method="GET" class="relative">
+                 <input type="text" name="q" class="border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tìm kiếm...">
+                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+             </form>
+         </div>
+ 
+        <!-- Login/Logout -->
+<div class="hidden md:flex items-center space-x-4">
+    <% if (typeof user !== "undefined" && user) { %>
+        <% if (user.role === 'admin') { %> <!-- Kiểm tra vai trò Admin -->
+            <a href="/admin/dashboard" class="text-gray-700 hover:text-blue-500 flex items-center">
+                <i class="fas fa-cog mr-2"></i> Quản lý Admin
+            </a>
+        <% } %>
+        <a href="/profile" class="text-gray-700 hover:text-blue-500 flex items-center">
+            <i class="fas fa-user mr-2"></i> <%= user.username %>
+        </a>
+        <a href="/logout" class="text-gray-700 hover:text-blue-500 flex items-center">
+            <i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất
+        </a>
+    <% } else { %>
+        <a href="/login" class="text-gray-700 hover:text-blue-500 flex items-center">
+            <i class="fas fa-sign-in-alt mr-2"></i> Đăng nhập
+        </a>
+        <a href="/register" class="text-gray-700 hover:text-blue-500 flex items-center">
+            <i class="fas fa-user-plus mr-2"></i> Đăng ký
+        </a>
+    <% } %>
+</div>
+
+    </div>
+ </header>
+ 

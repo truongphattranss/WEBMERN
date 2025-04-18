@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Sản phẩm</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <% var title = "Thêm Sản phẩm"; %>
+    <%- include('layout') %>
+
+    <div class="container mt-5">
+        <h2 class="mb-4">Thêm sản phẩm mới</h2>
+
+        <form action="/admin/products/add-product" method="POST">
+            <div class="form-group">
+                <label for="name">Tên sản phẩm:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Giá:</label>
+                <input type="number" class="form-control" id="price" name="price" required>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Hình ảnh (URL:/images/...):</label>
+                <input type="text" class="form-control" id="image" name="image">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Danh mục:</label>
+                <input type="text" class="form-control" id="category" name="category">
+            </div>
+
+            <div class="form-group">
+                <label for="rating">Rating (1-5):</label>
+                <input type="number" step="0.1" class="form-control" id="rating" name="rating">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Mô tả:</label>
+                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+        </form>
+    </div>
+
+</body>
+</html>
