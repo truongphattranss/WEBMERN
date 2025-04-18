@@ -86,10 +86,10 @@ app.use(session({
         ttl: 24 * 60 * 60 // 1 day
     }),
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        secure: true, // ⚠️ BẮT BUỘC khi deploy trên HTTPS (Render dùng HTTPS)
         httpOnly: true,
-        sameSite: 'lax'
+        sameSite: 'none', // ⚠️ BẮT BUỘC nếu frontend khác domain (như Vercel)
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
     }
 }));
 
