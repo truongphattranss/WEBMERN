@@ -115,5 +115,10 @@ router.get('/cart', (req, res) => {
         res.status(500).json({ success: false, message: "Lỗi lấy giỏ hàng" });
     }
 });
-
+// ========================== DEBUG GIỎ HÀNG ==========================
+router.get('/cart/debug', (req, res) => {
+    console.log('Session ID:', req.sessionID);
+    console.log('Cart:', req.session.cart);
+    res.json({ sessionId: req.sessionID, cart: req.session.cart });
+});
 module.exports = router;
