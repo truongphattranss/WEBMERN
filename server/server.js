@@ -4,11 +4,19 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
 
 // Debug environment variables
 console.log('⚙️ Environment:', process.env.NODE_ENV);
 console.log('🔑 JWT_SECRET:', process.env.JWT_SECRET ? 'Configured' : 'Missing');
 console.log('🗄️ MongoDB URI:', process.env.MONGODB_URI ? 'Configured' : 'Using default');
+
+// Trust proxy for Render
+app.set('trust proxy', 1);
 
 // Import models
 const Order = require('./models/Order');
@@ -28,16 +36,6 @@ const adminStatsRoutes = require('./routers/admin-stats');
 const adminCategoryRoutes = require('./routers/admin-category');
 const ordersRoutes = require('./routers/orders');
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-//
-app.use(
-    cors({
-      origin: "https://curvotech.vercel.app",
-      credentials: true, // nếu bạn dùng cookie/session
-    })
-  );
 // ========================== DATABASE CONNECTION ==========================
 mongoose.connect(process.env.MONGODB_URI || '', {
     useNewUrlParser: true,
@@ -46,10 +44,9 @@ mongoose.connect(process.env.MONGODB_URI || '', {
 .then(() => console.log('✅ MongoDB Connected Successfully'))
 .catch(err => {
     console.error('❌ MongoDB Connection Error:', err);
-    process.exit(1); // Exit if database connection fails
+    process.exit(1);
 });
 
-// Monitor MongoDB connection
 mongoose.connection.on('error', err => {
     console.error('MongoDB Error:', err);
 });
@@ -59,13 +56,13 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // ========================== MIDDLEWARE ==========================
-// Security Middleware
-app.use(express.json({ limit: '10mb' })); // Limit JSON body size
+// Core Middleware
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser()); // Add cookie parser middleware
+app.use(cookieParser());
 
-// CORS Configuration
+// ✅ CORS Middleware (chỉ gọi 1 lần)
 app.use(cors({
     origin: process.env.CLIENT_URL || 'https://curvotech.vercel.app',
     credentials: true,
@@ -73,10 +70,7 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Session Configuration
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-
+// ✅ Session Middleware
 app.use(session({
     secret: process.env.SESSION_SECRET || '123',
     resave: false,
@@ -86,22 +80,22 @@ app.use(session({
         ttl: 24 * 60 * 60 // 1 day
     }),
     cookie: {
-        secure: true, // ⚠️ BẮT BUỘC khi deploy trên HTTPS (Render dùng HTTPS)
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: 'none', // ⚠️ BẮT BUỘC nếu frontend khác domain (như Vercel)
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000 // 1 day
     }
 }));
 
-// Request Logger Middleware
+// ✅ Logging Middleware
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
 });
 
 // ========================== ROUTES ==========================
-// API Routes with version prefix
 const API_PREFIX = '/api';
+
 app.use(`${API_PREFIX}/users`, userRoutes);
 app.use(`${API_PREFIX}/products`, productRoutes);
 app.use(`${API_PREFIX}/search`, searchRoutes);
@@ -111,14 +105,25 @@ app.use(`${API_PREFIX}/payment`, paymentRoutes);
 app.use(`${API_PREFIX}/about`, aboutRoutes);
 app.use(`${API_PREFIX}/orders`, ordersRoutes);
 
-// Admin Routes with authentication check
+// Admin Routes
 app.use(`${API_PREFIX}/admin/users`, adminUserRoutes);
 app.use(`${API_PREFIX}/admin/products`, adminProductRoutes);
 app.use(`${API_PREFIX}/admin/orders`, adminOrderRoutes);
 app.use(`${API_PREFIX}/admin/categories`, adminCategoryRoutes);
 app.use(`${API_PREFIX}/admin`, adminStatsRoutes);
 
-// Health Check Route
+// ✅ Session Test Route
+app.get('/api/session', (req, res) => {
+    if (!req.session.views) req.session.views = 0;
+    req.session.views++;
+    res.json({
+        message: 'Session active!',
+        views: req.session.views,
+        sessionID: req.sessionID,
+    });
+});
+
+// Health Check
 app.get('/health', (req, res) => {
     res.json({ 
         status: 'ok',
@@ -136,7 +141,6 @@ app.use('*', (req, res) => {
 });
 
 // ========================== ERROR HANDLING ==========================
-// Global Error Handler
 app.use((err, req, res, next) => {
     console.error('❌ Error:', err);
     res.status(err.status || 500).json({
@@ -165,7 +169,6 @@ process.on('SIGTERM', () => {
     });
 });
 
-// Unhandled Promise Rejections
 process.on('unhandledRejection', (err) => {
     console.error('❌ Unhandled Promise Rejection:', err);
     server.close(() => {
