@@ -9,6 +9,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://curvotech.onrender.com
 export const getCart = async () => {
     try {
         const response = await axios.get(`${API_URL}/cart/cart`, { withCredentials: true });
+        console.log('Giỏ hàng:', response.data);  // Log dữ liệu giỏ hàng để kiểm tra
         return response.data;
     } catch (error) {
         console.error('Lỗi khi lấy giỏ hàng:', error);
